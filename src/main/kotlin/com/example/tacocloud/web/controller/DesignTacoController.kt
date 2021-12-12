@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.SessionAttributes
-import java.util.ArrayList
 import java.util.stream.Collectors
 
 
@@ -22,11 +21,11 @@ import java.util.stream.Collectors
 @SessionAttributes("tacoOrder")
 class DesignTacoController {
 
-    private final val logger = LoggerFactory.getLogger(this::class.java);
+    private final val LOGGER = LoggerFactory.getLogger(this::class.java)
 
     @ModelAttribute
     fun addIngredientsToModel(model: Model) {
-        logger.info("$this addIngredientsToModel starts")
+        LOGGER.info("addIngredientsToModel starts")
         val ingredients: List<Ingredient> = arrayListOf(
             Ingredient("FLTO", "Flour Tortilla", Type.WRAP),
             Ingredient("COTO", "Corn Tortilla", Type.WRAP),
@@ -41,16 +40,19 @@ class DesignTacoController {
         )
         val types: Array<Type> = Type.values()
         for (type in types) {
+            val typename = type.toString().lowercase()
             model.addAttribute(
-                type.toString().lowercase(),
+                typename,
                 filterByType(ingredients, type)
             )
+            LOGGER.info("model[$typename] = ${model.getAttribute(typename)}")
         }
+
     }
 
     @GetMapping
     fun showDesignForm(model: Model): String? {
-        model.addAttribute("taco", Taco("",ArrayList()))
+        model.addAttribute("taco", Taco("", ArrayList()))
         return "design"
     }
 
@@ -59,7 +61,7 @@ class DesignTacoController {
     ): Iterable<Ingredient>? {
         return ingredients
             .stream()
-            .filter { type.equals(it) }
+            .filter { type.equals(it.type) }
             .collect(Collectors.toList())
     }
 }
